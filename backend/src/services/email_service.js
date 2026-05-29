@@ -3,8 +3,8 @@ const dns = require("dns");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL ishlatish
+  port: 587,
+  secure: false, // STARTTLS uchun false bo'lishi shart!
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
