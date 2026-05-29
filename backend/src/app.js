@@ -19,8 +19,13 @@ app.set('trust proxy', 1);
 app.use(helmet());
 
 // CORS: Faqat ruxsat etilgan domenlardan so'rov qabul qilish
+let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+if (frontendUrl.endsWith('/')) {
+    frontendUrl = frontendUrl.slice(0, -1);
+}
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Frontend manzili
+    origin: frontendUrl,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
