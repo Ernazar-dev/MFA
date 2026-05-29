@@ -11,7 +11,19 @@ const transporter = nodemailer.createTransport({
   },
   // Custom DNS lookup to strictly force IPv4 and bypass IPv6 on Render
   lookup: (hostname, options, callback) => {
-    return dns.lookup(hostname, { family: 4 }, callback);
+    const cb = typeof options === 'function' ? options : callback;
+    dns.lookup(hostname, { family: 4 }, (err, address, family) => {
+      if (err) {
+        dns.resolve4(hostname, (err2, addresses) => {
+          if (err2 || !addresses || addresses.length === 0) {
+            return cb(err);
+          }
+          return cb(null, addresses[0], 4);
+        });
+      } else {
+        cb(null, address, family);
+      }
+    });
   },
   connectionTimeout: 10000, // 10 soniya kutish
   greetingTimeout: 10000,
