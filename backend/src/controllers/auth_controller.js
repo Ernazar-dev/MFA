@@ -16,7 +16,13 @@ const saveLog = async (userId, action, req) => {
       console.warn(`User with id ${userId} not found, skipping audit log: ${action}`);
       return;
     }
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    let ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+    if (ip.includes(",")) {
+      ip = ip.split(",")[0].trim();
+    }
+    if (ip.length > 45) {
+      ip = ip.substring(0, 45);
+    }
     const ua = req.headers["user-agent"];
     await pool.query(
       "INSERT INTO audit_logs (user_id, action, ip_address, user_agent) VALUES ($1, $2, $3, $4)",
