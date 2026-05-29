@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -8,13 +9,14 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  // --- SHU QISMNI QO'SHING ---
+  // Custom DNS lookup to strictly force IPv4 and bypass IPv6 on Render
+  lookup: (hostname, options, callback) => {
+    return dns.lookup(hostname, { family: 4 }, callback);
+  },
   connectionTimeout: 10000, // 10 soniya kutish
   greetingTimeout: 10000,
   socketTimeout: 10000,
   dnsTimeout: 10000,
-  // IPv4-ni majburlash uchun quyidagi qator:
-  family: 4,
   tls: {
     rejectUnauthorized: false,
   },
