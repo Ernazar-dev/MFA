@@ -50,26 +50,82 @@ const createTransporter = async () => {
   });
 };
 
+// Helper for sending via HTTP API (bypass SMTP port block on Render Free Tier)
+const sendViaHttp = async (url, options) => {
+  if (typeof fetch !== "undefined") {
+    const response = await fetch(url, options);
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = { message: text };
+    }
+    if (!response.ok) {
+      throw new Error(data.message || JSON.stringify(data));
+    }
+    return data;
+  } else {
+    const https = require("https");
+    const { URL } = require("url");
+    return new Promise((resolve, reject) => {
+      const parsedUrl = new URL(url);
+      const reqOptions = {
+        method: options.method || "POST",
+        hostname: parsedUrl.hostname,
+        path: parsedUrl.pathname + parsedUrl.search,
+        headers: options.headers,
+      };
+
+      const req = https.request(reqOptions, (res) => {
+        let body = "";
+        res.on("data", (chunk) => body += chunk);
+        res.on("end", () => {
+          try {
+            const data = JSON.parse(body);
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(data);
+            } else {
+              reject(new Error(data.message || body));
+            }
+          } catch (e) {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve(body);
+            } else {
+              reject(new Error(`HTTP Error ${res.statusCode}: ${body}`));
+            }
+          }
+        });
+      });
+
+      req.on("error", (err) => reject(err));
+      if (options.body) {
+        req.write(options.body);
+      }
+      req.end();
+    });
+  }
+};
+
 // Verify transporter connection on startup
 (async () => {
-  try {
-    const transporter = await createTransporter();
-    await transporter.verify();
-    console.log("Email server tayar (IPv4 arqalı)!");
-  } catch (error) {
-    console.log("Email qatesi:", error.message || error);
+  if (process.env.BREVO_API_KEY) {
+    console.log("Email xızmeti: Brevo (HTTP API) saylanıp tur.");
+  } else if (process.env.RESEND_API_KEY) {
+    console.log("Email xızmeti: Resend (HTTP API) saylanıp tur.");
+  } else {
+    try {
+      const transporter = await createTransporter();
+      await transporter.verify();
+      console.log("Email server tayar (IPv4 arqalı)!");
+    } catch (error) {
+      console.log("Email qatesi:", error.message || error);
+    }
   }
 })();
 
 const sendOTPEmail = async (toEmail, code) => {
-  const transporter = await createTransporter();
-
-  const mailOptions = {
-    from: `"ProSecurity System" <${process.env.EMAIL_USER}>`,
-    to: toEmail,
-    subject: `Tastıyıqlaw kodi: ${code}`,
-    text: `Siziń tastıyıqlaw kodıńız: ${code}`,
-    html: `
+  const htmlContent = `
         <div style="background-color: #f8fafc; padding: 40px; font-family: 'Inter', sans-serif;">
             <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                 <div style="text-align: center; margin-bottom: 24px;">
@@ -85,10 +141,59 @@ const sendOTPEmail = async (toEmail, code) => {
                     Eger bul sorawdı siz jibermegen bolsańız, bul xatqa itibar bermeń.
                 </p>
                 <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;">
-               
             </div>
         </div>
-    `
+    `;
+
+  const subject = `Tastıyıqlaw kodi: ${code}`;
+
+  if (process.env.BREVO_API_KEY) {
+    console.log(`[Email] Jiberilmekte (Brevo HTTP API arqalı): ${toEmail}`);
+    return sendViaHttp("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "accept": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          name: "ProSecurity System",
+          email: process.env.EMAIL_USER || "no-reply@prosecurity.com",
+        },
+        to: [{ email: toEmail }],
+        subject: subject,
+        htmlContent: htmlContent,
+      }),
+    });
+  }
+
+  if (process.env.RESEND_API_KEY) {
+    console.log(`[Email] Jiberilmekte (Resend HTTP API arqalı): ${toEmail}`);
+    return sendViaHttp("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: `ProSecurity System <${process.env.EMAIL_USER || "onboarding@resend.dev"}>`,
+        to: toEmail,
+        subject: subject,
+        html: htmlContent,
+      }),
+    });
+  }
+
+  // Fallback to standard SMTP (Gmail)
+  console.log(`[Email] Jiberilmekte (SMTP arqalı): ${toEmail}`);
+  const transporter = await createTransporter();
+  const mailOptions = {
+    from: `"ProSecurity System" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: subject,
+    text: `Siziń tastıyıqlaw kodıńız: ${code}`,
+    html: htmlContent
   };
 
   return transporter.sendMail(mailOptions);
