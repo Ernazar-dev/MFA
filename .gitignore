@@ -1,0 +1,23 @@
+# IDE / Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tool-specific directories
+.antigravitycli/
+.gemini/
+
+# Safety fallback rules for subfolders
+**/node_modules/
+**/dist/
+**/.env
+**/.env*.local
+**/*.log
