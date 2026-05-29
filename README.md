@@ -1,116 +1,97 @@
-# MFA (Multi-Factor Authentication) Loyihasi / MFA Project
+# 🔐 MFA (Multi-Factor Authentication) Proyekti
 
-Bu loyiha React (Frontend) va Node.js + Express + PostgreSQL (Backend) texnologiyalari yordamida yaratilgan ikki bosqichli xavfsizlik (MFA - Multi-Factor Authentication) tizimidir.
-
----
-
-## 🔴 Xatolik nimada? / Qate nege kelip shıqtı?
-
-Sizdagi **`Registratsiyada qate: error: отношение "users" не существует`** xatoligi PostgreSQL ma'lumotlar bazasida **`users`** (foydalanuvchilar) jadvali (table) mavjud emasligini bildiradi. 
-
-Tizim ishlashi uchun ma'lumotlar bazasida tegishli jadvallar (`users`, `audit_logs` va `recovery_codes`) yaratilgan bo'lishi kerak.
+Bul proyekt React (Frontend) hám Node.js + Express + PostgreSQL (Backend) texnologiyaları járdeminde jaratılǵan eki basqıshlı qáwipsizlik (MFA - Multi-Factor Authentication) sisteması bolıp tabıladı.
 
 ---
 
-## 🛠 Tuzatish bosqichlari / Ońlaw basqıshları
+## 🛠 Proyektti ornatıw hám iske túsiriw
 
-Jadvallarni yaratish uchun quyidagi qadamlarni bajaring:
+Proyektti tolıq iske túsiriw ushın tómendegi kórsetpelerge ámel etiń:
 
-1. **PostgreSQL** (masalan, pgAdmin yoki terminal) orqali ma'lumotlar bazangizga kiring.
-2. Yangi ma'lumotlar bazasi (Database) yarating. Nomi backend `.env` faylida ko'rsatilganidek bo'lishi kerak: **`mfa-project`**.
-3. **Backend-ni ishga tushiring.** Backend ishga tushganida `database.sql` faylidagi barcha jadvallarni (`users`, `audit_logs`, `recovery_codes`) avtomatik ravishda o'zi yaratadi! (Query Tool orqali qo'lda yozib o'tirish shart emas).
+### 1. Maǵlıwmatlar bazası hám ortalıq sazlawları (Configuration)
 
-
-Ushbu SQL kodlar quyidagi jadvallarni yaratadi:
-* **`users`** — foydalanuvchilar ma'lumotlari, MFA sozlamalari va pochta kodlarini saqlash uchun.
-* **`audit_logs`** — tizimdagi harakatlar tarixi (IP-manzil, brauzer ma'lumotlari) uchun.
-* **`recovery_codes`** — MFA yoqilganda beriladigan zaxira tiklash kodlarini saqlash uchun.
-
----
-
-## 🚀 Loyihani o'rnatish va ishga tushirish / Project Setup & Running
-
-Loyihani to'liq ishga tushirish uchun quyidagi ko'rsatmalarga amal qiling:
-
-### 1. Ma'lumotlar bazasi va muhit sozlamalari (Configuration)
-
-Backend papkasida [backend/.env](file:///D:/%20ERNAZAR%20OBSH/OBSH%20KODLAR/IP-tayinlar/Beka/backend/.env) fayli mavjud. U yerda o'zingizning PostgreSQL va Email server ma'lumotlaringizni to'g'ri sozlang:
+1. **PostgreSQL** maǵlıwmatlar bazasın iske túsiriń (pgAdmin yaki terminal arqalı).
+2. Jańa maǵlıwmatlar bazasın (Database) jaratıń. Bazanıń atı backend `.env` faylında kórsetilgendey bolıwı kerek: **`mfa-project`**.
+3. Backend papkasında [backend/.env](file:///D:/%20ERNAZAR%20OBSH/OBSH%20KODLAR/IP-tayinlar/Beka/backend/.env) faylın ashıń hám ózińizdiń PostgreSQL hám Email server maǵlıwmatlarıńızdı tuwrı sazlań:
 
 ```env
 PORT=5000
-DB_USER=postgres            # PostgreSQL foydalanuvchi nomi
+DB_USER=postgres            # PostgreSQL paydalanıwshı atı
 DB_PASSWORD=your_password   # PostgreSQL paroli
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=mfa-project         # Ma'lumotlar bazasi nomi
-JWT_SECRET=your_jwt_secret  # Istalgan maxfiy kalit so'z
+DB_NAME=mfa-project         # Maǵlıwmatlar bazası atı
+JWT_SECRET=your_jwt_secret  # Qálegen qupıya gilt sóz
 
-# Email orqali OTP yuborish xizmati uchun (Gmail misolida)
+# Email orqalı OTP jiberiw xızmeti ushın (Gmail mısalında)
 EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password # Gmail App Password (oddiy parol emas)
+EMAIL_PASS=your_app_password # Gmail App Password (ápiwayı parol emes)
 ```
 
 ---
 
-### 2. Backend-ni ishga tushirish
+### 2. Backend'ti iske túsiriw
 
-Terminalda `backend` papkasiga o'ting, kutubxonalarni o'rnating va serverni yoqing:
+Terminalda `backend` papkasına ótiń, zárúrli kitapxanalardı ornatıń hám serverdi yoqıń:
 
 ```bash
-# Backend papkasiga o'tish
+# Backend papkasına ótiw
 cd backend
 
-# Kutubxonalarni o'rnatish
+# Kitapxanalardı ornatıw
 npm install
 
-# Loyihani rivojlantirish (development) rejimida ishga tushirish
+# Proyektti islep shıǵıw (development) rejiminde iske túsiriw
 npm run dev
 ```
 
-*Server muvaffaqiyatli ishga tushgach, terminalda quyidagi xabarlar chiqadi:*
+*Server tabıslı iske túskennen soń, terminalda tómendegi xabarlar payda boladı:*
 * `Server 5000-portta juwırıp atır...`
 * `Email server tayar (IPv4 arqalı)!`
 
+> [!NOTE]
+> Backend birinshi márte iske túskende, ol proyekttegi `database.sql` faylındagı barlıq jadvallardı (`users`, `audit_logs`, `recovery_codes`) avtomatlı túrde bazada jaratadı!
+
 ---
 
-### 3. Frontend-ni ishga tushirish
+### 3. Frontend'ti iske túsiriw
 
-Boshqa terminal oynasini ochib, `frontend` papkasiga o'ting va loyihani yoqing:
+Basqa terminal aynasın ashıp, `frontend` papkasına ótiń hám sayttı yoqıń:
 
 ```bash
-# Frontend papkasiga o'tish
+# Frontend papkasına ótiw
 cd frontend
 
-# Kutubxonalarni o'rnatish
+# Kitapxanalardı ornatıw
 npm install
 
-# Loyihani ishga tushirish
+# Proyektti iske túsiriw
 npm run dev
 ```
 
-*Frontend odatda `http://localhost:5173` manzilida ishga tushadi.*
+*Frontend ádette `http://localhost:5173` mánzilinde iske túsedi.*
 
 ---
 
-## 📁 Loyiha tuzilishi / Project Directory Structure
+## 📁 Proyekt Dúzilisi
 
 ```text
 Beka/
 ├── backend/
 │   ├── src/
-│   │   ├── config/       # Ma'lumotlar bazasi ulanishi (db.js)
+│   │   ├── config/       # Maǵlıwmatlar bazası ulanıwı (db.js)
 │   │   ├── controllers/  # Logikalar (auth_controller.js)
-│   │   ├── middleware/   # JWT va xavfsizlik middleware
-│   │   ├── routes/       # API yo'llari (authRoutes.js)
-│   │   ├── services/     # OTP, MFA va Email jo'natish xizmatlari
-│   │   └── app.js        # Express ilovasi konfiguratsiyasi
-│   ├── database.sql      # Database jadvallarini yaratish uchun SQL kodlar
-│   ├── server.js         # Backendni ishga tushiruvchi kirish nuqtasi
-│   └── .env              # Muhit konfiguratsiya fayli
+│   │   ├── middleware/   # JWT hám qáwipsizlik middleware (authMiddleware.js)
+│   │   ├── routes/       # API jolları (authRoutes.js)
+│   │   ├── services/     # OTP, MFA hám Email jiberiw xızmetleri
+│   │   └── app.js        # Express ilovası konfiguraciyası
+│   ├── database.sql      # Bazada jadvallar jaratıw ushın SQL kodlar
+│   ├── server.js         # Backend iske túsiriwshi baslanǵısh noqat
+│   └── .env              # Ortalıq konfiguraciya faylı
 └── frontend/
     ├── src/
-    │   ├── api/          # Axios ulanishi (api/axios.js)
-    │   ├── components/   # UI komponentlari
-    │   ├── pages/        # Login, Register, Dashboard, MFA sahifalari
-    │   └── App.jsx       # Boshqaruvchi asosiy React komponenti
+    │   ├── api/          # Axios ulanıwı (api/axios.js)
+    │   ├── components/   # UI komponentler (ProtectedRoute.jsx)
+    │   ├── pages/        # Login, Register, Dashboard, MFA betleri
+    │   └── App.jsx       # Basqarıwshı tiykarǵı React komponenti
 ```

@@ -10,6 +10,9 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
+// Render/Reverse proxy muhitlarida IP manzilni to'g'ri aniqlash uchun proxy-ni ishonchli deb belgilaymiz
+app.set('trust proxy', 1);
+
 /** * 1. Global Xavfsizlik Sozlamalari  */
 
 // Helmet: Brauzer xavfsizlik sarlavhalarini o'rnatadi
